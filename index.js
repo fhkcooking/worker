@@ -1,17 +1,28 @@
 export default {
   async fetch(request) {
-    const targetURL = "https://www.buzzfeed.com"; // Source website
-    let url = new URL(request.url);
-    url.hostname = new URL(targetURL).hostname;
-
-    // Get the domain the worker is running on
+    // Get the current domain the Worker is running on
     let currentDomain = new URL(request.url).hostname;
+
+    // Extract the subdomain (if any) from the request
+    let subdomain = currentDomain.split(".")[0];
+
+    // Default to www.buzzfeed.com, but adjust for subdomains
+    let targetHost = "www.buzzfeed.com";
+
+    // If the request was to a subdomain, try to map it to BuzzFeed
+    if (subdomain !== "www" && subdomain !== currentDomain) {
+      targetHost = `${subdomain}.buzzfeed.com`;
+    }
+
+    // Build the target URL
+    let url = new URL(request.url);
+    url.hostname = targetHost;
 
     // Modify request headers
     let modifiedHeaders = new Headers(request.headers);
-    modifiedHeaders.set("Host", url.hostname);
-    modifiedHeaders.set("Referer", targetURL);
-    modifiedHeaders.set("Origin", targetURL);
+    modifiedHeaders.set("Host", targetHost);
+    modifiedHeaders.set("Referer", `https://${targetHost}`);
+    modifiedHeaders.set("Origin", `https://${targetHost}`);
     modifiedHeaders.set(
       "User-Agent",
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
@@ -46,7 +57,8 @@ export default {
     let body = await response.text();
 
     if (contentType.includes("text/html")) {
-      // Dynamically replace BuzzFeed URLs with the current domain
+      // Dynamically replace BuzzFeed domains with the current domain
+      body = body.replace(/https?:\/\/([a-z0-9-]+)\.buzzfeed\.com/g, `https://${currentDomain}`);
       body = body.replace(/https?:\/\/www\.buzzfeed\.com/g, `https://${currentDomain}`);
     }
 
