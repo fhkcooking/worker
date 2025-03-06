@@ -47,7 +47,7 @@ export default {
 
     if (contentType.includes("text/html")) {
       // Dynamically replace BuzzFeed URLs with the current domain
-      body = body.replace(/https?:\/\/www\.buzzfeed\.com/g, https://${currentDomain});
+      body = body.replace(/https?:\/\/www\.buzzfeed\.com/g, `https://${currentDomain}`);
     }
 
     return new Response(body, {
