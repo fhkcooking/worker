@@ -46,8 +46,8 @@ export default {
     let body = await response.text();
 
     if (contentType.includes("text/html")) {
-      // Replace all BuzzFeed subdomains (e.g., advertis.buzzfeed.com) with the current domain
-      body = body.replace(/https?:\/\/([a-z0-9-]+)?\.?buzzfeed\.com/g, `https://${currentDomain}`);
+      // Dynamically replace BuzzFeed URLs with the current domain
+      body = body.replace(/https?:\/\/www\.buzzfeed\.com/g, `https://${currentDomain}`);
     }
 
     return new Response(body, {
